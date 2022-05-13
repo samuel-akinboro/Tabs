@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { nanoid } from "nanoid";
 import "../components/LoggedIn.css";
 
@@ -7,6 +7,8 @@ function LoggedIn() {
   let usersInSession = "usersInSession"
   const [user, setUser] = useState("");
   const [users, setUsers] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUser(JSON.parse(sessionStorage.getItem('signedInUser')))
@@ -17,8 +19,19 @@ function LoggedIn() {
     setUsers(allUsersInStorage)
   }, [])
 
-  const handleLogOut = (index) => {
-    let remainingUsers = users.filter(singleUser => singleUser)
+  const handleLogOut = () => {
+    let allUsersInStorage = JSON.parse(localStorage.getItem(usersInSession));
+    let remainingUsers = allUsersInStorage.filter(singleUser => singleUser !== user);
+    setUsers(remainingUsers);
+    localStorage.setItem(usersInSession, JSON.stringify(remainingUsers))
+    navigate("/")
+  }
+
+  const handleUsersLogOut = (name) => {
+    let allUsersInStorage = JSON.parse(localStorage.getItem(usersInSession));
+    let remainingUsers = allUsersInStorage.filter(singleUser => singleUser !== name);
+    setUsers(remainingUsers);
+    localStorage.setItem(usersInSession, JSON.stringify(remainingUsers))
   }
  
   // const users = JSON.parse(localStorage.getItem("usersInSession"));
@@ -61,19 +74,17 @@ function LoggedIn() {
                 
                   <h5 className="h5">active</h5>
                 }
-                <button onClick={()=> handleLogOut(index)} className="active-button">log out</button>
+                <button onClick={()=> handleUsersLogOut(user)} className="active-button">log out</button>
               </div>
             ))}
         </div>
-        <Link to="/">
-        <button className="first-button" >
+        <button className="first-button" onClick={handleLogOut} >
           Log Out
         </button>
 
         <button className="second-button">
           Sign in with a different user
         </button>
-        </Link>
       </div>
     </div>
   );
